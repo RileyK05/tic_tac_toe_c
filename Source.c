@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdbool.h>
+#include <limits.h>
 
 int gameState[3][3] = {0};
 
@@ -97,23 +98,91 @@ bool isMovesLeft(int gameState[3][3]) {
 }
 
 int minimax(int gameState[3][3], int depth, bool isMax) {
-    
+    int score = evaluate(gameState);
+ 
+    if (score == 10) return score - depth;
+    if (score == -10) return score + depth;
+    if (!isMovesLeft(gameState)) return 0;
+
+    if (isMax) {
+        int best = INT_MIN;
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                if (gameState[i][j] == 0) {
+                    gameState[i][j] = 2;
+
+                    int val = minimax(gameState, depth + 1, false);
+                    if (val > best) best = val;
+                    gameState[i][j] = 0;
+                }
+            }
+        return best;
+        }
+    }
+    else {
+        int best = INT_MAX;
+
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                if (gameState[i][j] == 0) {
+                    gameState[i][j] = 1;
+
+                    int val = minimax(gameState, depth+1, true);
+                    if (val < best) best = val;
+                    gameState[i][j] = 0;
+                }
+            }
+        }
+        return best;
+    }
 }
 
 Move findBestMove(int gameState[3][3]) {
+    int bestVal = INT_MIN;
+    Move bestMove;
+    bestMove.x = -1;
+    bestMove.y = -1;
 
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            if (gameState[i][j] == 0) {
+                gameState[i][j] = 2;
+
+                int moveVal = minimax(gameState, 0, false);
+                gameState[i][j] = 0;
+ 
+                if (moveVal > bestVal) {
+                    bestMove.x = i;
+                    bestMove.y = j;
+                    bestVal = moveVal;
+                }
+            }
+        }
+    }
+    return bestMove;
 }
 
 int main(int arcv, char *argc[]) {
     int usrStart;
     bool runGame;
-    printf("To start game, press 1\n");
+    char board[3][3];
+    initBoard(board);
+
+    for (int i = 0; i < 3; i++)
+        for (int j = 0; j < 3; j++)
+            gameState[i][j] = 0;
+
+    printf("Welcome to Tic-Tac-Toe!\n");
+    printf("You are 'X' and the bot is 'O'.\n");
+    printf("To start the game, press 1\n");
     printf("To quit, press 2\n");
     printf("Enter: ");
     scanf("%d", &usrStart);
 
+
     if (usrStart == 2) {
         runGame = false;
+        return 0;
     }
     else if (usrStart == 1) {
         runGame = true;
@@ -122,9 +191,12 @@ int main(int arcv, char *argc[]) {
         printf("Error, incorrect input\n");
         return -1;
     }
+    printBoard(board);
 
     while (runGame) {
+        int inputX, inputY;
 
+        
     }
 
 
