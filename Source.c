@@ -18,7 +18,6 @@ bool isMovesLeft(int gameState[3][3]);
 int minimax(int gameState[3][3], int depth, bool isMax);
 Move findBestMove(int gameState[3][3]);
 
-
 void initBoard(char board[3][3]) {
     for (int i = 0; i < 3; i++) {
         for (int j = 0; j < 3; j++) {
@@ -28,16 +27,16 @@ void initBoard(char board[3][3]) {
 }
 
 void printBoard(char board[3][3]) {
-    printf('\n');
-    printf("   1   2   3\n");
+    printf("\n");
+    printf("    1   2   3\n");
     for (int i = 0; i < 3; i++) {
-        printf(" %c ", i+1);
+        printf(" %d  ", i + 1);
         for (int j = 0; j < 3; j++) {
             printf(" %c ", board[i][j]);
             if (j < 2) printf("|");
         }
         printf("\n");
-        if(i < 2) printf("  ---|---|---\n");
+        if(i < 2) printf("    ---|---|---\n");
     }
     printf("\n");
 }
@@ -110,23 +109,20 @@ int minimax(int gameState[3][3], int depth, bool isMax) {
             for (int j = 0; j < 3; j++) {
                 if (gameState[i][j] == 0) {
                     gameState[i][j] = 2;
-
                     int val = minimax(gameState, depth + 1, false);
                     if (val > best) best = val;
                     gameState[i][j] = 0;
                 }
             }
-        return best;
         }
+        return best;
     }
     else {
         int best = INT_MAX;
-
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
                 if (gameState[i][j] == 0) {
                     gameState[i][j] = 1;
-
                     int val = minimax(gameState, depth+1, true);
                     if (val < best) best = val;
                     gameState[i][j] = 0;
@@ -147,10 +143,8 @@ Move findBestMove(int gameState[3][3]) {
         for (int j = 0; j < 3; j++) {
             if (gameState[i][j] == 0) {
                 gameState[i][j] = 2;
-
                 int moveVal = minimax(gameState, 0, false);
                 gameState[i][j] = 0;
- 
                 if (moveVal > bestVal) {
                     bestMove.x = i;
                     bestMove.y = j;
@@ -162,7 +156,7 @@ Move findBestMove(int gameState[3][3]) {
     return bestMove;
 }
 
-int main(int arcv, char *argc[]) {
+int main(int argc, char *argv[]) {
     int usrStart;
     bool runGame;
     char board[3][3];
@@ -177,18 +171,21 @@ int main(int arcv, char *argc[]) {
     printf("To start the game, press 1\n");
     printf("To quit, press 2\n");
     printf("Enter: ");
-    scanf("%d", &usrStart);
-
+    if (scanf("%d", &usrStart) != 1) {
+        printf("Invalid input. Exiting...\n");
+        return -1;
+    }
 
     if (usrStart == 2) {
         runGame = false;
+        printf("Goodbye!\n");
         return 0;
     }
     else if (usrStart == 1) {
         runGame = true;
     }
     else {
-        printf("Error, incorrect input\n");
+        printf("Error, incorrect input. Exiting...\n");
         return -1;
     }
     printBoard(board);
@@ -196,11 +193,59 @@ int main(int arcv, char *argc[]) {
     while (runGame) {
         int inputX, inputY;
 
-        
+        printf("Enter your move (row and column numbers from 1 to 3, separated by space): ");
+        if (scanf("%d %d", &inputX, &inputY) != 2) {
+            printf("Invalid input. Please enter two numbers separated by space.\n");
+            while (getchar() != '\n');
+            continue;
+        }
+
+        inputX -= 1;
+        inputY -= 1;
+
+        if (inputX < 0 || inputX >= 3 || inputY < 0 || inputY >= 3 || gameState[inputX][inputY] != 0) {
+            printf("Invalid move. Please try again.\n");
+            continue;
+        }
+
+        gameStateTrack(gameState, inputX, inputY, true);
+        updateBoard(board, inputX, inputY, true);
+        printBoard(board);
+
+        int score = evaluate(gameState);
+        if (score == -10) {
+            printf("Congratulations! You win!\n");
+            break;
+        }
+
+        if (!isMovesLeft(gameState)) {
+            printf("It's a draw!\n");
+            break;
+        }
+
+        printf("Bot is making a move...\n");
+        Move botMove = findBestMove(gameState);
+        if (botMove.x != -1 && botMove.y != -1) {
+            gameStateTrack(gameState, botMove.x, botMove.y, false);
+            updateBoard(board, botMove.x, botMove.y, false);
+            printBoard(board);
+
+            score = evaluate(gameState);
+            if (score == 10) {
+                printf("Bot wins! Better luck next time.\n");
+                break;
+            }
+
+            if (!isMovesLeft(gameState)) {
+                printf("It's a draw!\n");
+                break;
+            }
+        } else {
+            printf("No moves left. It's a draw!\n");
+            break;
+        }
     }
 
-
-
+    printf("Game over.\n");
     return 0;
 }
-
