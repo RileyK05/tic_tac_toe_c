@@ -3,14 +3,20 @@
 
 int gameState[3][3] = {0};
 
-void gameStateTrack(int gameState[3][3], int inputX, int inputY, bool isPlayer) {
-    if (isPlayer) {
-        gameState[inputX][inputY] = 1;
-    }
-    else {
-        gameState[inputX][inputY] = 2;
-    }
-}
+typedef struct {
+    int x; 
+    int y;
+} Move;
+
+void initBoard(char board[3][3]);
+void printBoard(char board[3][3]);
+void gameStateTrack(int gameState[3][3], int inputX, int inputY, bool isPlayer);
+void updateBoard(char board[3][3], int inputX, int inputY, bool isPlayer);
+int evaluate(int gameState[3][3]);
+bool isMovesLeft(int gameState[3][3]);
+int minimax(int gameState[3][3], int depth, bool isMax);
+Move findBestMove(int gameState[3][3]);
+
 
 void initBoard(char board[3][3]) {
     for (int i = 0; i < 3; i++) {
@@ -35,20 +41,66 @@ void printBoard(char board[3][3]) {
     printf("\n");
 }
 
-void updateBoard(char board[3][3], int inputX, int inputY, bool isPlayer) {
+void gameStateTrack(int gameState[3][3], int inputX, int inputY, bool isPlayer) {
     if (isPlayer) {
-        board[inputX][inputY] = " X ";
+        gameState[inputX][inputY] = 1;
     }
     else {
-        board[inputX][inputY] = " O ";
+        gameState[inputX][inputY] = 2;
     }
 }
 
-int botX(int x) {
+void updateBoard(char board[3][3], int inputX, int inputY, bool isPlayer) {
+    if (isPlayer) {
+        board[inputX][inputY] = 'X';
+    }
+    else {
+        board[inputX][inputY] = 'O';
+    }
+}
+
+int evaluate(int gameState[3][3]) {
+    for (int i = 0; i < 3; i++) {
+        if (gameState[i][0] == gameState[i][1] &&
+            gameState[i][1] == gameState[i][2]) { 
+                if (gameState[i][0] == 1) return -10;
+                else if (gameState[i][0] == 2) return +10;
+        }
+    }
+    for (int j = 0; j < 3; j++) {
+        if (gameState[0][j] == gameState[1][j] &&
+            gameState[1][j] == gameState[2][j]) {
+                if (gameState[0][j] == 1) return -10;
+                else if (gameState[0][j] == 2) return +10;
+        }
+    }
+    if (gameState[0][2] == gameState[1][1] &&
+        gameState[1][1] == gameState[2][0]) {
+            if (gameState[0][2] == 1) return -10;
+            else if (gameState[0][2] == 2) return +10;
+    }
+    if (gameState[0][0] == gameState[1][1] &&
+        gameState[1][1] == gameState[2][2]) {
+            if (gameState[0][0] == 1) return -10;
+            else if (gameState[0][0] == 2) return +10;
+    }
+    return 0;
+}
+
+bool isMovesLeft(int gameState[3][3]) {
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            if(gameState[i][j] == 0) return true;
+        }
+    }
+    return false;
+}
+
+int minimax(int gameState[3][3], int depth, bool isMax) {
     
 }
 
-int botY(int y) {
+Move findBestMove(int gameState[3][3]) {
 
 }
 
